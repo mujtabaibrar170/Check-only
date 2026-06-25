@@ -3,208 +3,602 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sunset Chatbot</title>
-
-    <!-- SECTION: CSS STYLES -->
-    <!-- All colors have been updated here for the sunset theme. -->
+    <title>Mujtaba Vision AI - Image Generator</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <style>
-        /* Basic setup for the whole page */
+        :root {
+            --bg-color: #f0f2f5;
+            --card-bg-color: #ffffff;
+            --primary-color: #007bff;
+            --primary-color-dark: #0056b3;
+            --text-color: #333;
+            --subtle-text-color: #6c757d;
+            --border-color: #e9ecef;
+            --shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            --shadow-light: 0 2px 8px rgba(0, 0, 0, 0.06);
+            --gradient-start: #e0e7ff;
+            --gradient-end: #f0f2f5;
+            --animation-speed: 0.3s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-image: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
+            color: var(--text-color);
             margin: 0;
-            background-color: #232946; /* Deep twilight blue background */
+            padding: 1rem;
             display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .header h1 {
+            font-weight: 700;
+            background: linear-gradient(45deg, var(--primary-color), #33aaff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-size: 2.5rem;
+        }
+        
+        .header p {
+            color: var(--subtle-text-color);
+            margin-top: -10px;
+        }
+        
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 2rem;
+        }
+
+        @media (min-width: 1024px) {
+            .main-content {
+                grid-template-columns: 3fr 2fr;
+            }
+        }
+        
+        .card {
+            background: var(--card-bg-color);
+            padding: 2rem;
+            border-radius: 1rem;
+            box-shadow: var(--shadow);
+            transition: all var(--animation-speed) ease;
+        }
+        
+        .card h2 {
+            margin-top: 0;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 0.75rem;
+            margin-bottom: 1.5rem;
+            font-size: 1.5rem;
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .prompt-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .prompt-header label {
+            display: block;
+            font-weight: 600;
+            color: var(--subtle-text-color);
+        }
+        
+        .btn-icon {
+            background: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--subtle-text-color);
+            padding: 0.4rem 0.8rem;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            transition: all var(--animation-speed) ease;
+        }
+
+        .btn-icon:hover {
+            background-color: var(--bg-color);
+            color: var(--primary-color);
+            border-color: #cddcff;
+        }
+
+        .prompt-input {
+            width: 100%;
+            padding: 1rem;
+            border-radius: 0.75rem;
+            border: 1px solid var(--border-color);
+            font-size: 1rem;
+            transition: all var(--animation-speed) ease;
+            box-sizing: border-box;
+            resize: vertical;
+        }
+        
+        .prompt-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.2);
+        }
+        
+        .styles-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 1rem;
+            max-height: 400px;
+            overflow-y: auto;
+            padding-right: 10px;
+        }
+        
+        .style-card {
+            background-color: var(--bg-color);
+            border: 2px solid transparent;
+            border-radius: 0.75rem;
+            padding: 1rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all var(--animation-speed) ease;
+            font-size: 0.85rem;
+        }
+        
+        .style-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-light);
+            border-color: #cddcff;
+        }
+        
+        .style-card.selected {
+            border-color: var(--primary-color);
+            background-color: #e7f1ff;
+            color: var(--primary-color-dark);
+            font-weight: 600;
+        }
+        
+        .style-card i {
+            font-size: 2rem;
+            display: block;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(45deg, var(--primary-color), #33aaff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .style-card.selected i {
+            background: none;
+            -webkit-text-fill-color: var(--primary-color-dark);
+        }
+
+        .btn {
+            display: inline-block;
+            width: 100%;
+            padding: 1rem;
+            border: none;
+            border-radius: 0.75rem;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            text-align: center;
+            transition: all var(--animation-speed) ease;
+        }
+        
+        .btn-primary {
+            background-image: linear-gradient(45deg, var(--primary-color) 0%, #33aaff 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3);
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 123, 255, 0.4);
+        }
+
+        .btn-primary:disabled {
+            background-image: none;
+            background-color: #a0c7f0;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .btn-secondary {
+            background-color: var(--card-bg-color);
+            color: var(--primary-color);
+            border: 1px solid var(--border-color);
+        }
+
+        .btn-secondary:hover {
+            background-color: var(--bg-color);
+        }
+        
+        .image-placeholder {
+            width: 100%;
+            aspect-ratio: 1/1;
+            border-radius: 1rem;
+            background-color: var(--bg-color);
+            display: flex;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
-            height: 100vh;
-        }
-
-        /* The main container for the chat interface */
-        .chat-container {
-            width: 100%;
-            max-width: 600px;
-            height: 95vh;
-            background-color: #2b3452; /* Slightly lighter blue for the chat window */
-            border-radius: 12px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
-            display: flex;
-            flex-direction: column;
+            color: var(--subtle-text-color);
+            border: 2px dashed var(--border-color);
+            position: relative;
             overflow: hidden;
         }
+        
+        .image-placeholder i {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+        }
 
-        /* Header with a warm sunset gradient */
-        .chat-header {
-            background: linear-gradient(90deg, #ff8c42, #ff3c83); /* Orange to pink gradient */
+        #generated-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 1rem;
+            display: none;
+            animation: fadeIn 0.5s;
+        }
+
+        .loader {
+            position: absolute;
+            width: 50px;
+            height: 50px;
+            border: 5px solid var(--border-color);
+            border-top-color: var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            display: none;
+        }
+
+        #download-btn {
+            margin-top: 1rem;
+            display: none;
+        }
+
+        #history-section {
+            margin-top: 2rem;
+        }
+        
+        .history-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+        
+        .history-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 1rem;
+        }
+        
+        .history-item {
+            position: relative;
+            border-radius: 0.75rem;
+            overflow: hidden;
+            box-shadow: var(--shadow-light);
+            animation: fadeIn 0.5s;
+        }
+
+        .history-item img {
+            width: 100%;
+            display: block;
+            aspect-ratio: 1/1;
+            object-fit: cover;
+        }
+
+        .history-item-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0,0,0,0.6);
             color: white;
-            padding: 15px;
+            padding: 0.5rem;
+            font-size: 0.8rem;
+            transform: translateY(100%);
+            transition: transform var(--animation-speed) ease;
             text-align: center;
-            font-size: 1.2em;
-            font-weight: bold;
+            word-wrap: break-word;
         }
 
-        /* The window where messages appear */
-        #chat-log {
-            flex-grow: 1;
-            padding: 20px;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
-        
-        /* General style for all message bubbles */
-        .message {
-            padding: 10px 15px;
-            border-radius: 18px;
-            max-width: 80%;
-            line-height: 1.4;
+        .history-item:hover .history-item-overlay {
+            transform: translateY(0);
         }
 
-        /* Style for the user's messages (bright orange, like the sun) */
-        .user-message {
-            background-color: #ff8c42; /* Bright sunset orange */
-            color: #1a202c; /* Dark text for high contrast */
-            font-weight: 500;
-            align-self: flex-end;
-            border-bottom-right-radius: 4px;
+        .footer {
+            text-align: center;
+            margin-top: 3rem;
+            color: var(--subtle-text-color);
         }
 
-        /* Style for the bot's messages (muted purple, like evening clouds) */
-        .bot-message {
-            background-color: #4a5477; /* Muted purple/blue */
-            color: #e0e0e0; /* Soft white text */
-            align-self: flex-start;
-            border-bottom-left-radius: 4px;
+        .footer a {
+            color: var(--primary-color);
+            text-decoration: none;
         }
-        
-        /* Style for the "Bot is typing..." indicator */
-        .typing-indicator {
-            color: #b8c1ec; /* Light lavender color */
-            font-style: italic;
-        }
-
-        /* The form at the bottom */
-        #chat-form {
-            display: flex;
-            padding: 15px;
-            border-top: 1px solid #4a5477;
-            background-color: #232946; /* Matches the main background */
-        }
-
-        /* The text input box */
-        #user-input {
-            flex-grow: 1;
-            padding: 10px;
-            background-color: #4a5477;
-            color: #fffffe; /* White text */
-            border: 1px solid #4a5477;
-            border-radius: 20px;
-            margin-right: 10px;
-            font-size: 1em;
-        }
-        #user-input::placeholder {
-            color: #b8c1ec;
-        }
-
-        /* The send button */
-        #chat-form button {
-            background-color: #ff8c42; /* Matches the user's message bubble */
-            color: #1a202c; /* Dark text for contrast */
-            border: none;
-            padding: 10px 20px;
-            border-radius: 20px;
-            cursor: pointer;
-            font-size: 1em;
-            font-weight: bold;
-            transition: background-color 0.2s;
-        }
-        
-        /* Darker orange on hover */
-        #chat-form button:hover {
-            background-color: #e87a3a;
-        }
-        
-        /* Style for the button when it's disabled */
-        #chat-form button:disabled {
-            background-color: #ff8c42;
-            opacity: 0.6; /* Make it look faded */
-            cursor: not-allowed;
+        .footer a:hover {
+            text-decoration: underline;
         }
     </style>
 </head>
 <body>
 
-    <!-- SECTION: HTML STRUCTURE -->
-    <!-- This part remains exactly the same. -->
-    <div class="chat-container">
-        <div class="chat-header">Mujtaba Tools AI Chatbot</div>
+    <div class="container">
+        <header class="header">
+            <h1>Mujtaba Tools Vision AI</h1>
+            <p>Generate stunning images with various artistic styles.</p>
+        </header>
 
-        <div id="chat-log">
-            <!-- Chat messages will be added here by JavaScript -->
-        </div>
+        <main class="main-content">
+            <div class="card">
+                <h2><i class="bi bi-palette-fill"></i> Create Image</h2>
+                <div class="form-group">
+                    <div class="prompt-header">
+                        <label for="prompt">1. Enter a Prompt</label>
+                        <button id="random-prompt-btn" class="btn-icon">
+                            <i class="bi bi-shuffle"></i> Random
+                        </button>
+                    </div>
+                    <textarea id="prompt" class="prompt-input" rows="3" placeholder="e.g., A majestic lion in a neon jungle"></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label>2. Choose a Style</label>
+                    <div id="styles-container" class="styles-grid"></div>
+                </div>
+                
+                <button id="generate-btn" class="btn btn-primary">
+                    <i class="bi bi-magic"></i> Generate
+                </button>
+            </div>
+            
+            <div class="card">
+                <h2><i class="bi bi-image-fill"></i> Result</h2>
+                <div class="image-placeholder" id="image-container">
+                    <i class="bi bi-image"></i>
+                    <p>Your generated image will appear here.</p>
+                    <div class="loader" id="loader"></div>
+                    <img id="generated-image" src="" alt="Generated AI Image">
+                </div>
+                <a id="download-btn" class="btn btn-secondary" href="#" download="fak-ai-image.png">
+                    <i class="bi bi-download"></i> Download Image
+                </a>
+            </div>
+        </main>
 
-        <form id="chat-form">
-            <input type="text" id="user-input" placeholder="Ask a question..." autocomplete="off" required>
-            <button type="submit">Send</button>
-        </form>
+        <section id="history-section" class="card">
+            <div class="history-header">
+                <h2><i class="bi bi-clock-history"></i> History</h2>
+                <button id="clear-history-btn" class="btn btn-secondary" style="width: auto; padding: 0.5rem 1rem;">Clear History</button>
+            </div>
+            <div id="history-grid" class="history-grid">
+                <p id="no-history-msg">No images generated yet.</p>
+            </div>
+        </section>
+
+        <footer class="footer">
+            <p>Powered by <a href="https://whatsapp.com/channel/0029VbA5d6Z4tRs2BjMwNV1b" target="_blank">MUJTABA IBRAR OFFICIAL</a> - Hack the Future</p>
+        </footer>
+
     </div>
 
-    <!-- SECTION: JAVASCRIPT LOGIC -->
-    <!-- This part also remains exactly the same. -->
     <script>
-        // Get references to the HTML elements we need.
-        const chatLog = document.getElementById('chat-log');
-        const chatForm = document.getElementById('chat-form');
-        const userInput = document.getElementById('user-input');
-        const sendButton = chatForm.querySelector('button');
-        
-        // The API endpoint URL.
-        const apiUrl = 'https://fak-chatgpt.jokerkeep057.workers.dev/chat/';
+        document.addEventListener('DOMContentLoaded', () => {
+            // The FAK API Worker URL is now hardcoded.
+            const WORKER_URL = "https://fak-img.jokerkeep057.workers.dev/"; 
 
-        // Function to add a message to the chat log.
-        function addMessage(content, sender) {
-            const messageDiv = document.createElement('div');
-            messageDiv.className = `message ${sender}-message`;
-            messageDiv.textContent = content;
-            chatLog.appendChild(messageDiv);
-            chatLog.scrollTop = chatLog.scrollHeight;
-            return messageDiv;
-        }
+            const styles = [
+                { name: "pointillism", icon: "bi-dot" }, { name: "typography", icon: "bi-fonts" }, { name: "line_art", icon: "bi-pen" },
+                { name: "caricature", icon: "bi-emoji-smile" }, { name: "adorable_kawaii", icon: "bi-stars" }, { name: "psychedelic", icon: "bi-hypnotize" },
+                { name: "watercolor", icon: "bi-brush" }, { name: "colored_pencil_art", icon: "bi-pencil-fill" }, { name: "futuristic_retro_cyberpunk", icon: "bi-hdd-stack" },
+                { name: "stained_glass", icon: "bi-app-indicator" }, { name: "comic", icon: "bi-chat-left-dots" }, { name: "sumi_e_symbolic", icon: "bi-flower1" },
+                { name: "monochrome", icon: "bi-circle-half" }, { name: "van_gogh", icon: "bi-brightness-high" }, { name: "manga", icon: "bi-book" },
+                { name: "surreal_painting", icon: "bi-moon-stars" }, { name: "papercraft_kirigami", icon: "bi-scissors" }, { name: "papercraft_paper_quilling", icon: "bi-hurricane" },
+                { name: "pixel_art", icon: "bi-grid-1x2" }, { name: "cubist", icon: "bi-box" }, { name: "papercraft_paper_mache", icon: "bi-journal" },
+                { name: "lowpoly", icon: "bi-triangle" }, { name: "sticker", icon: "bi-sticky" }, { name: "dripping_paint_splatter", icon: "bi-paint-bucket" },
+                { name: "ink_dripping", icon: "bi-droplet" }, { name: "cross_stitching", icon: "bi-plus-lg" }, { name: "graffiti", icon: "bi-spraycan" },
+                { name: "alcohol_ink", icon: "bi-moisture" }, { name: "tlingit_art", icon: "bi-feather" }, { name: "pop_art", icon: "bi-patch-check" }, { name: "fauvism", icon: "bi-palette" }
+            ];
 
-        // Listen for the form to be submitted.
-        chatForm.addEventListener('submit', async (event) => {
-            event.preventDefault();
+            const randomPrompts = [
+                "A serene bioluminescent forest at twilight with glowing mushrooms and mystical creatures.",
+                "Steampunk cityscape on a floating island, with brass airships and intricate clockwork buildings.",
+                "A majestic phoenix rising from rainbow-colored flames against a starry nebula.",
+                "An underwater library inside a giant crystal cavern, filled with glowing jellyfish.",
+                "A tiny fox astronaut exploring a candy-colored planet.",
+                "An ancient, moss-covered robot meditating in a tranquil Japanese zen garden.",
+                "A bustling medieval fantasy market square filled with elves, dwarves, and dragons.",
+                "Portrait of a wise old owl wearing a monocle and a top hat, surrounded by books.",
+                "A colossal cosmic whale swimming through the rings of Saturn.",
+                "A secret garden hidden behind a waterfall, with flowers that chime like bells.",
+                "A futuristic neon-drenched metropolis in a perpetual, gentle rain.",
+                "A knight in shimmering, ethereal armor riding a griffin through storm clouds.",
+                "A cozy, cluttered wizard's workshop filled with enchanted objects and potions.",
+                "A beautiful cherry blossom tree made entirely of glass, reflecting a sunset.",
+                "A lone lighthouse standing against a dramatic, swirling galaxy.",
+                "A cat pirate captain on the deck of its ship, navigating by the stars.",
+                "An enchanted castle carved from a single, giant amethyst crystal.",
+                "A forgotten Art Deco city discovered deep within the Amazon rainforest.",
+                "A majestic wolf howling at a shattered moon in a frozen landscape.",
+                "A vibrant coral reef ecosystem thriving inside a giant, abandoned astronaut helmet.",
+                "A magical treehouse village connected by glowing rope bridges.",
+                "A powerful sorceress casting a spell that weaves the northern lights.",
+                "A serene landscape where the mountains are giant, sleeping dragons.",
+                "A detective in a trench coat standing on a foggy, 1940s city street.",
+                "An intricate mechanical dragonfly with filigree wings.",
+                "A floating market in a Venice-like city with fantastical gondolas.",
+                "The solar system reimagined as a delicate, clockwork orrery.",
+                "A samurai warrior facing a giant serpent demon in a bamboo forest.",
+                "A peaceful hobbit hole with a round door, nestled in a lush, green hillside.",
+                "A space elevator ascending into a sky filled with alien constellations."
+            ];
 
-            const userMessage = userInput.value.trim();
-            if (!userMessage) return;
+            const promptInput = document.getElementById('prompt');
+            const randomPromptBtn = document.getElementById('random-prompt-btn');
+            const stylesContainer = document.getElementById('styles-container');
+            const generateBtn = document.getElementById('generate-btn');
+            const loader = document.getElementById('loader');
+            const imageContainer = document.getElementById('image-container');
+            const generatedImage = document.getElementById('generated-image');
+            const downloadBtn = document.getElementById('download-btn');
+            const historyGrid = document.getElementById('history-grid');
+            const clearHistoryBtn = document.getElementById('clear-history-btn');
+            const noHistoryMsg = document.getElementById('no-history-msg');
 
-            addMessage(userMessage, 'user');
-            userInput.value = '';
+            let selectedStyle = null;
 
-            sendButton.disabled = true;
-            
-            const typingIndicator = addMessage('Bot is typing...', 'bot typing-indicator');
-            
-            try {
-                const encodedMessage = encodeURIComponent(userMessage);
-                const response = await fetch(`${apiUrl}${encodedMessage}`);
-                const botResponse = await response.text();
-                
-                typingIndicator.textContent = botResponse;
-                typingIndicator.classList.remove('typing-indicator');
-
-            } catch (error) {
-                console.error('Error:', error);
-                typingIndicator.textContent = 'Sorry, something went wrong. Please try again.';
-                typingIndicator.classList.remove('typing-indicator');
-            } finally {
-                sendButton.disabled = false;
-                userInput.focus();
+            function renderStyles() {
+                styles.forEach(style => {
+                    const card = document.createElement('div');
+                    card.className = 'style-card';
+                    card.dataset.style = style.name;
+                    card.innerHTML = `<i class="bi ${style.icon}"></i><span>${style.name.replace(/_/g, ' ')}</span>`;
+                    card.addEventListener('click', () => {
+                        document.querySelectorAll('.style-card').forEach(c => c.classList.remove('selected'));
+                        card.classList.add('selected');
+                        selectedStyle = style.name;
+                    });
+                    stylesContainer.appendChild(card);
+                });
             }
+
+            function renderHistory() {
+                historyGrid.innerHTML = '';
+                const history = JSON.parse(localStorage.getItem('fakImageHistory')) || [];
+                if (history.length === 0) {
+                    historyGrid.appendChild(noHistoryMsg);
+                    noHistoryMsg.style.display = 'block';
+                    return;
+                }
+                noHistoryMsg.style.display = 'none';
+                history.slice().reverse().forEach(item => {
+                    const historyItem = document.createElement('div');
+                    historyItem.className = 'history-item';
+                    historyItem.innerHTML = `<img src="${item.imageData}" alt="${item.prompt}"><div class="history-item-overlay"><strong>${item.style.replace(/_/g, ' ')}</strong><p>${item.prompt}</p></div>`;
+                    historyGrid.appendChild(historyItem);
+                });
+            }
+
+            function saveToHistory(prompt, style, imageData) {
+                let history = JSON.parse(localStorage.getItem('fakImageHistory')) || [];
+                history.push({ prompt, style, imageData });
+                if(history.length > 20) { history.shift(); }
+                localStorage.setItem('fakImageHistory', JSON.stringify(history));
+                renderHistory();
+            }
+
+            function blobToBase64(blob) {
+                return new Promise((resolve, reject) => {
+                    const reader = new FileReader();
+                    reader.onloadend = () => resolve(reader.result);
+                    reader.onerror = reject;
+                    reader.readAsDataURL(blob);
+                });
+            }
+            
+            randomPromptBtn.addEventListener('click', () => {
+                const randomIndex = Math.floor(Math.random() * randomPrompts.length);
+                promptInput.value = randomPrompts[randomIndex];
+            });
+
+            generateBtn.addEventListener('click', async () => {
+                const prompt = promptInput.value.trim();
+                if (!prompt) {
+                    alert('Please enter a prompt.');
+                    promptInput.focus();
+                    return;
+                }
+                if (!selectedStyle) {
+                    alert('Please select a style.');
+                    return;
+                }
+
+                generateBtn.disabled = true;
+                generateBtn.innerHTML = '<i class="bi bi-hourglass-split"></i> Generating...';
+                loader.style.display = 'block';
+                generatedImage.style.display = 'none';
+                downloadBtn.style.display = 'none';
+                imageContainer.querySelector('p').style.display = 'none';
+                imageContainer.querySelector('i').style.display = 'none';
+
+                const encodedPrompt = encodeURIComponent(prompt);
+                const apiUrl = `${WORKER_URL}image/generate?prompt=${encodedPrompt}&model=flux&style=${selectedStyle}`;
+
+                try {
+                    const response = await fetch(apiUrl);
+                    if (!response.ok) {
+                        throw new Error(`Network response was not ok: ${response.statusText}`);
+                    }
+
+                    const contentType = response.headers.get('content-type');
+                    if (contentType && (contentType.includes('image/jpeg') || contentType.includes('image/png'))) {
+                        const imageBlob = await response.blob();
+                        const imageUrl = URL.createObjectURL(imageBlob);
+                        
+                        generatedImage.src = imageUrl;
+                        generatedImage.style.display = 'block';
+                        downloadBtn.href = imageUrl;
+                        downloadBtn.download = `${prompt.substring(0, 30).replace(/\s/g, '_')}_${selectedStyle}.png`;
+                        downloadBtn.style.display = 'block';
+
+                        const base64Image = await blobToBase64(imageBlob);
+                        saveToHistory(prompt, selectedStyle, base64Image);
+
+                    } else {
+                        alert('Error: The API did not return an image. It may have redirected. Check the console or network tab for details.');
+                        console.error('Unexpected content type:', contentType);
+                    }
+                } catch (error) {
+                    alert(`An error occurred: ${error.message}. Please check your Worker URL and network connection.`);
+                    console.error('Fetch error:', error);
+                } finally {
+                    generateBtn.disabled = false;
+                    generateBtn.innerHTML = '<i class="bi bi-magic"></i> Generate';
+                    loader.style.display = 'none';
+                    if(generatedImage.style.display === 'none') {
+                        imageContainer.querySelector('p').style.display = 'block';
+                        imageContainer.querySelector('i').style.display = 'block';
+                    }
+                }
+            });
+
+            clearHistoryBtn.addEventListener('click', () => {
+                if (confirm('Are you sure you want to clear all image history?')) {
+                    localStorage.removeItem('fakImageHistory');
+                    renderHistory();
+                }
+            });
+
+            renderStyles();
+            renderHistory();
         });
-        
-        // Add a welcome message when the page loads.
-        addMessage("Hello! I am Mujtaba Tools AI. How can I help you?", 'bot');
     </script>
 </body>
 </html>
