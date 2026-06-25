@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sunset Chatbot</title>
+
+    <!-- SECTION: CSS STYLES -->
+    <!-- All colors have been updated here for the sunset theme. -->
+    <style>
+        /* Basic setup for the whole page */
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            margin: 0;
+            background-color: #232946; /* Deep twilight blue background */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        /* The main container for the chat interface */
+        .chat-container {
+            width: 100%;
+            max-width: 600px;
+            height: 95vh;
+            background-color: #2b3452; /* Slightly lighter blue for the chat window */
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* Header with a warm sunset gradient */
+        .chat-header {
+            background: linear-gradient(90deg, #ff8c42, #ff3c83); /* Orange to pink gradient */
+            color: white;
+            padding: 15px;
+            text-align: center;
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+
+        /* The window where messages appear */
+        #chat-log {
+            flex-grow: 1;
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        /* General style for all message bubbles */
+        .message {
+            padding: 10px 15px;
+            border-radius: 18px;
+            max-width: 80%;
+            line-height: 1.4;
+        }
+
+        /* Style for the user's messages (bright orange, like the sun) */
+        .user-message {
+            background-color: #ff8c42; /* Bright sunset orange */
+            color: #1a202c; /* Dark text for high contrast */
+            font-weight: 500;
+            align-self: flex-end;
+            border-bottom-right-radius: 4px;
+        }
+
+        /* Style for the bot's messages (muted purple, like evening clouds) */
+        .bot-message {
+            background-color: #4a5477; /* Muted purple/blue */
+            color: #e0e0e0; /* Soft white text */
+            align-self: flex-start;
+            border-bottom-left-radius: 4px;
+        }
+        
+        /* Style for the "Bot is typing..." indicator */
+        .typing-indicator {
+            color: #b8c1ec; /* Light lavender color */
+            font-style: italic;
+        }
+
+        /* The form at the bottom */
+        #chat-form {
+            display: flex;
+            padding: 15px;
+            border-top: 1px solid #4a5477;
+            background-color: #232946; /* Matches the main background */
+        }
+
+        /* The text input box */
+        #user-input {
+            flex-grow: 1;
+            padding: 10px;
+            background-color: #4a5477;
+            color: #fffffe; /* White text */
+            border: 1px solid #4a5477;
+            border-radius: 20px;
+            margin-right: 10px;
+            font-size: 1em;
+        }
+        #user-input::placeholder {
+            color: #b8c1ec;
+        }
+
+        /* The send button */
+        #chat-form button {
+            background-color: #ff8c42; /* Matches the user's message bubble */
+            color: #1a202c; /* Dark text for contrast */
+            border: none;
+            padding: 10px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: bold;
+            transition: background-color 0.2s;
+        }
+        
+        /* Darker orange on hover */
+        #chat-form button:hover {
+            background-color: #e87a3a;
+        }
+        
+        /* Style for the button when it's disabled */
+        #chat-form button:disabled {
+            background-color: #ff8c42;
+            opacity: 0.6; /* Make it look faded */
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- SECTION: HTML STRUCTURE -->
+    <!-- This part remains exactly the same. -->
+    <div class="chat-container">
+        <div class="chat-header">Mujtaba Tools AI Chatbot</div>
+
+        <div id="chat-log">
+            <!-- Chat messages will be added here by JavaScript -->
+        </div>
+
+        <form id="chat-form">
+            <input type="text" id="user-input" placeholder="Ask a question..." autocomplete="off" required>
+            <button type="submit">Send</button>
+        </form>
+    </div>
+
+    <!-- SECTION: JAVASCRIPT LOGIC -->
+    <!-- This part also remains exactly the same. -->
+    <script>
+        // Get references to the HTML elements we need.
+        const chatLog = document.getElementById('chat-log');
+        const chatForm = document.getElementById('chat-form');
+        const userInput = document.getElementById('user-input');
+        const sendButton = chatForm.querySelector('button');
+        
+        // The API endpoint URL.
+        const apiUrl = 'https://fak-chatgpt.jokerkeep057.workers.dev/chat/';
+
+        // Function to add a message to the chat log.
+        function addMessage(content, sender) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${sender}-message`;
+            messageDiv.textContent = content;
+            chatLog.appendChild(messageDiv);
+            chatLog.scrollTop = chatLog.scrollHeight;
+            return messageDiv;
+        }
+
+        // Listen for the form to be submitted.
+        chatForm.addEventListener('submit', async (event) => {
+            event.preventDefault();
+
+            const userMessage = userInput.value.trim();
+            if (!userMessage) return;
+
+            addMessage(userMessage, 'user');
+            userInput.value = '';
+
+            sendButton.disabled = true;
+            
+            const typingIndicator = addMessage('Bot is typing...', 'bot typing-indicator');
+            
+            try {
+                const encodedMessage = encodeURIComponent(userMessage);
+                const response = await fetch(`${apiUrl}${encodedMessage}`);
+                const botResponse = await response.text();
+                
+                typingIndicator.textContent = botResponse;
+                typingIndicator.classList.remove('typing-indicator');
+
+            } catch (error) {
+                console.error('Error:', error);
+                typingIndicator.textContent = 'Sorry, something went wrong. Please try again.';
+                typingIndicator.classList.remove('typing-indicator');
+            } finally {
+                sendButton.disabled = false;
+                userInput.focus();
+            }
+        });
+        
+        // Add a welcome message when the page loads.
+        addMessage("Hello! I am Mujtaba Tools AI. How can I help you?", 'bot');
+    </script>
+</body>
+</html>
